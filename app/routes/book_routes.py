@@ -27,10 +27,10 @@ def get_all_books():
     
     title_param = request.args.get("title")
 
-    description_param = request.args.get("description")
     if title_param:
         query = query.where(Book.title.ilike(f"%{title_param}%"))
 
+    description_param = request.args.get("description")
     if description_param:
         query = query.where(Book.description.ilike(f"%{description_param}%"))
 
