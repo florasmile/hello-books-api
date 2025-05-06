@@ -1,5 +1,6 @@
 from flask import Blueprint, abort, make_response, request, Response
 from app.models.book import Book
+from app.models.author import Author
 from ..db import db
 from .route_utilities import validate_model
 
@@ -58,6 +59,19 @@ def update_book(book_id):
 
     book.title = request_body["title"]
     book.description = request_body["description"]
+    # assume two cases: no author info or provided an author id; 
+    # case 1: no author info
+    # case 2:provide author id
+        #validate author id
+            # case 2a: if exists, update author name
+            # case 2b: if not exist, return error message
+    author_id = request_body.get("author_id")
+    if author_id:
+        author = validate_model(Author, author_id)
+        #update book author info
+        book.author_id = author.id
+        book.author = author.name
+    
     db.session.commit()
 
     return Response(status=204, mimetype='application/json')
