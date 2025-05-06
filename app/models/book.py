@@ -21,12 +21,17 @@ class Book(db.Model):
     def from_dict(cls, book_data):
         title = book_data["title"]
         description = book_data["description"]
+        author_id = book_data.get("author_id")
 
-        return cls(title=title, description=description)
+        return cls(title=title, description=description, author_id=author_id)
     
     def to_dict(self):
-        return {
+        book_as_dict = {
             "id": self.id,
             "title": self.title,
             "description": self.description
         }
+
+        if self.author:
+            book_as_dict["author"] = self.author.name
+        return book_as_dict

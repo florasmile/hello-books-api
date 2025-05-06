@@ -13,11 +13,18 @@ class Author(db.Model):
     @classmethod
     def from_dict(cls, author_data):
         name = author_data["name"]
+        new_author = cls(name=name)
+        books = author_data.get("books")
+        if books:
+            new_author.books = books
         
-        return cls(name=name)
+        return new_author
     
     def to_dict(self):
-        return {
+        author_to_dict = {
             "id": self.id,
             "name": self.name,
         }
+        if self.books: 
+            author_to_dict["books"] = self.books
+        return author_to_dict
