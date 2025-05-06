@@ -3,15 +3,15 @@ from app.models.book import Book
 from ..db import db
 
 
-books_bp = Blueprint("books_bp", __name__, url_prefix="/books")
+bp = Blueprint("bp", __name__, url_prefix="/books")
 
-@books_bp.post("")
+@bp.post("")
 def create_book():
     request_body = request.get_json()
 
     try:
         new_book = Book.from_dict(request_body)
-        
+
     except KeyError as error:
         response = {"message": f"Invalid request: missing {error.args[0]}"}
         abort(make_response(response, 400))
@@ -19,13 +19,8 @@ def create_book():
     db.session.add(new_book)
     db.session.commit()
 
-    response = {
-        "id": new_book.id,
-        "title": new_book.title,
-        "description": new_book.description,
-    }
-    return response, 201
-@books_bp.get("/")
+    return new_book.to_dict(), 201
+@bp.get("")
 def get_all_books():
     query = db.select(Book)
     
@@ -44,24 +39,16 @@ def get_all_books():
     books_response = []
     for book in books:
         books_response.append(
-            {
-                "id": book.id,
-                "title": book.title,
-                "description": book.description
-            }
+            book.to_dict()
         )
     return books_response
 
 # define endpoints for getting a record of one book by id
-@books_bp.get("/<book_id>")
+@bp.get("/<book_id>")
 def get_one_book(book_id):
     book = validate_one_book(book_id)
 
-    return {
-        "id": book.id,
-        "title": book.title,
-        "description": book.description
-    }
+    return book.to_dict()
 
 
 # helper: validate the book_id: check id is in correct data type and if it exists in the database;
@@ -69,7 +56,7 @@ def validate_one_book(book_id):
     try:
         book_id = int(book_id)
     except:
-        response = {"message": f"Book_id {book_id} is invalid"}
+        response = {"message": f"Book {book_id} is invalid"}
         abort(make_response(response, 400))
 
     # check if book_id exists if it is valid type
@@ -77,12 +64,12 @@ def validate_one_book(book_id):
     book = db.session.scalar(query)
 
     if not book: 
-        response = {"message": f"book {book_id} not found"}
+        response = {"message": f"Book {book_id} not found"}
         abort(make_response(response, 404))
     
     return book
 
-@books_bp.put("/<book_id>")
+@bp.put("/<book_id>")
 def update_book(book_id):
     book = validate_one_book(book_id)
     request_body = request.get_json()
@@ -93,7 +80,7 @@ def update_book(book_id):
 
     return Response(status=204, mimetype='application/json')
 
-@books_bp.delete("/<book_id>")
+@bp.delete("/<book_id>")
 def delete_book(book_id):
     book = validate_one_book(book_id)
 
