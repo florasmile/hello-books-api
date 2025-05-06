@@ -4,6 +4,7 @@ from app.db import db
 from flask.signals import request_finished
 from dotenv import load_dotenv
 from app.models.book import Book
+from app.models.author import Author
 import os
 
 load_dotenv()
@@ -44,4 +45,14 @@ def two_saved_books(app):
     # Alternatively, we could do
     # db.session.add(ocean_book)
     # db.session.add(mountain_book)
+    db.session.commit()
+
+@pytest.fixture
+def two_saved_authors(app):
+    # Arrange
+    michelle_author = Author(name="Michelle Obama")
+    Barbara_author = Author(name="Barbara Kim")
+
+    db.session.add_all([michelle_author, Barbara_author])
+
     db.session.commit()
