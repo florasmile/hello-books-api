@@ -26,4 +26,21 @@ def create_model(cls, model_data):
         response = {"message": f"Invalid request: missing {error.args[0]}"}
         abort(make_response(response, 400))
     
-    return new_model
+    db.session.add(new_model)
+    db.session.commit()
+
+    #return new_model.to_dict(), 201
+    return make_response(new_model.to_dict(), 201)
+
+def get_models_with_filters(cls, filters=None):
+    query = db.select(cls)
+    
+    if filters:
+        for filter, value in filters.items():
+            if hasattr(cls, filter):
+                query = query.where(getattr(cls, filter).ilike(f"%{value}%"))
+
+    query = query.order_by(cls.id)
+    models = db.session.scalars(query)
+
+    return [model.to_dict() for model in models]

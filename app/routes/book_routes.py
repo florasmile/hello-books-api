@@ -2,7 +2,7 @@ from flask import Blueprint, abort, make_response, request, Response
 from app.models.book import Book
 from app.models.author import Author
 from ..db import db
-from .route_utilities import validate_model, create_model
+from .route_utilities import validate_model, create_model, get_models_with_filters
 
 bp = Blueprint("books_bp", __name__, url_prefix="/books")
 
@@ -10,34 +10,11 @@ bp = Blueprint("books_bp", __name__, url_prefix="/books")
 def create_book():
     request_body = request.get_json()
 
-    new_book = create_model(Book, request_body)
+    return create_model(Book, request_body)
 
-    db.session.add(new_book)
-    db.session.commit()
-
-    return new_book.to_dict(), 201
 @bp.get("")
 def get_all_books():
-    query = db.select(Book)
-    
-    title_param = request.args.get("title")
-
-    if title_param:
-        query = query.where(Book.title.ilike(f"%{title_param}%"))
-
-    description_param = request.args.get("description")
-    if description_param:
-        query = query.where(Book.description.ilike(f"%{description_param}%"))
-
-    query = query.order_by(Book.id)
-
-    books = db.session.scalars(query)
-    books_response = []
-    for book in books:
-        books_response.append(
-            book.to_dict()
-        )
-    return books_response
+    return get_models_with_filters(Book, request.args)
 
 # define endpoints for getting a record of one book by id
 @bp.get("/<book_id>")
