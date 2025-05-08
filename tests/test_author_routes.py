@@ -7,6 +7,7 @@ def test_get_all_authors_with_no_records(client):
     assert response.status_code == 200
     assert response_body == []
 
+# do not have a get one author route
 # def test_get_one_author(client, two_saved_authors):
 #     # Act
 #     response = client.get("/authors/1")
