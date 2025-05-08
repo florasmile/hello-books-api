@@ -17,8 +17,10 @@ class Book(db.Model):
     @classmethod
     def from_dict(cls, data):
         return cls(
-            title=data["title"], description=data["description"], author_id=data.get("author_id")
+            title=data["title"], description=data["description"], author_id=data.get("author_id"),
+            genres=data.get("genres", [])
         )
+
     
     def to_dict(self):
         book_to_dict = {
@@ -28,4 +30,14 @@ class Book(db.Model):
         }
         if self.author_id:
             book_to_dict["author_id"] = self.author_id
+        if self.genres:
+            book_to_dict["genres"] = [genre.name for genre in self.genres]
         return book_to_dict
+    
+    def update_from_dict(self, data):
+        for key, value in data.items():
+            if key == "genres":
+                self.genres.extend(value)
+            elif hasattr(self, key):
+                self.key = value
+   
